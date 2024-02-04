@@ -1,1 +1,514 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct train_infor
+{
+    char number[10];//车次
+    char start[20];//始发地
+    char end[20];//终点站
+    int year1, month1, day1, h1, m1;//发车时间
+    int year2, month2, day2, h2, m2;//到达时间
+}train;
+
+
+int cnum = 0;//记录列车总数信息；
+train info[10000];//车次信息；
+train users[100][100];//用户信息
+int vcs[100] = { 0 };//票数
+
+
+
+//录入
+void  create()
+{
+    int sum, i;
+    printf("输入需录入的列车信息条数:");
+    scanf_s("%d", &sum);
+    printf("依次输入车次 始发地 终点站 发车时间（年/月/日 时:分） 到达时间（年/月/日 时:分）；\n");
+    for (i = cnum; i < cnum + sum; i++)
+        scanf_s("%s %s %s %d/%d/%d %d:%d %d/%d/%d %d:%d", info[i].number,10, info[i].start,20, info[i].end,20, &info[i].year1, &info[i].month1, &info[i].day1, &info[i].h1, &info[i].m1, &info[i].year2, &info[i].month2, &info[i].day2, &info[i].h2, &info[i].m2);
+    printf("录入成功！\n");
+    cnum += sum;
+    return;
+}
+
+
+
+//显示
+void print()
+{
+    if (cnum == 0)
+    {
+        printf("暂无列车信息！\n");
+        return;
+    }
+    int i;
+    printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+    for (i = 0; i < cnum; i++)
+        printf("%s\t%s\t%s\t%d/%02d/%02d %02d:%02d\t%d/%02d/%02d %02d:%02d\n", info[i].number, info[i].start, info[i].end, info[i].year1, info[i].month1, info[i].day1, info[i].h1, info[i].m1, info[i].year2, info[i].month2, info[i].day2, info[i].h2, info[i].m2);
+    return;
+}
+
+
+//查询
+void query()
+{
+    int i;
+    printf("请输入查询车次：");
+    char ch[10];        //记录要查询的车次
+    scanf_s("%s", ch , 10);
+    for (i = 0; i < cnum; i++)
+    {
+        if (strcmp(ch, info[i].number) == 0)      //比较所有的列车信息一直到和输入的车次相同则找到并输出
+        {
+            printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+            printf("%s\t%s\t%s\t%d/%02d/%02d %02d:%02d\t%d/%02d/%02d %02d:%02d\n", info[i].number, info[i].start, info[i].end, info[i].year1, info[i].month1, info[i].day1, info[i].h1, info[i].m1, info[i].year2, info[i].month2, info[i].day2, info[i].h2, info[i].m2);
+            return;
+        }
+    }
+    printf("暂无此列车信息！（请确认信息无误后再次尝试 ）\n");   //没有找到则终止运行
+    return;
+}
+
+
+
+//修改
+void update()
+{
+    int i;
+    printf("请输入要修改的车次：");
+    char ch[10];     //记录要修改的车次
+    scanf_s("%s", ch , 10);
+    for (i = 0; i < cnum; i++)
+    {
+        if (strcmp(ch, info[i].number) == 0)
+        {
+            printf("该列车原信息：\n");
+            printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+            printf("%s\t%s\t%s\t%d/%02d/%02d %02d:%02d\t%d/%02d/%02d %02d:%02d\n", info[i].number, info[i].start, info[i].end, info[i].year1, info[i].month1, info[i].day1, info[i].h1, info[i].m1, info[i].year2, info[i].month2, info[i].day2, info[i].h2, info[i].m2);
+            printf("请输入新的数据：\n");
+            printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+            scanf_s("%s %s %s %d/%d/%d %d:%d %d/%d/%d %d:%d", info[i].number,10, info[i].start,20, info[i].end,20, &info[i].year1, &info[i].month1, &info[i].day1, &info[i].h1, &info[i].m1, &info[i].year2, &info[i].month2, &info[i].day2, &info[i].h2, &info[i].m2);
+            printf("修改成功！\n");
+            return;
+        }
+    }
+    printf("暂无此列车信息！\n");
+    return;
+}
+
+
+
+//添加
+void insert()
+{
+    int i = cnum;
+    printf("请输入添加的信息：\n");
+    printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+    scanf_s("%s %s %s %d/%d/%d %d:%d %d/%d/%d %d:%d", info[i].number,10, info[i].start,20, info[i].end,20, &info[i].year1, &info[i].month1, &info[i].day1, &info[i].h1, &info[i].m1, &info[i].year2, &info[i].month2, &info[i].day2, &info[i].h2, &info[i].m2);
+    cnum++;      //列车信息总数加一
+    printf("添加成功！\n");
+    return;
+}
+
+
+//删除火车票信息
+void dele()
+{
+    int i, vis = -1;       //初始值设为负数而不是0；因为数组下标不存在负数
+    printf("请输入要删除的车次：");
+    char ch[10];        //记录要删除的车次
+    scanf_s("%s", ch , 10);
+    for (i = 0; i < cnum; i++)
+    {
+        if (strcmp(ch, info[i].number) == 0)
+        {
+            vis = i;     //将要删除的车次的下标保存下来；
+            break;
+        }
+    }
+    if (vis == -1)         //如果下标数值没有变化则未找到
+    {
+        printf("暂无此列车信息！\n");
+        return;
+    }
+    else
+    {
+        for (i = vis; i < cnum - 1; i++)      //删除列车信息，把后边的信息依次往前进行覆盖；
+        {
+            info[i] = info[i + 1];
+        }
+        printf("删除成功！\n");
+        cnum--;            //列车信息总数减一；
+        return;
+    }
+}
+
+
+
+//管理员菜单 
+void admin_menu() {
+    printf("\t\t*************************************************************\n");
+    printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("\t\t               欢 迎 进 入 火 车 票 信 息 管 理 系 统               \n");
+    printf("\n");
+    printf("\t\t                     1、录入火车票信息                       \n\n");
+    printf("\t\t                     2、显示火车票信息                       \n\n");
+    printf("\t\t                     3、查询火车票信息                       \n\n");
+    printf("\t\t                     4、修改火车票信息                       \n\n");
+    printf("\t\t                     5、添加火车票信息                       \n\n");
+    printf("\t\t                     6、删除火车票信息                       \n\n");
+    printf("\t\t                     0、退          出                       \n");
+    printf("\n");
+    printf("\t\t*************************************************************\n");
+}
+
+
+//管理员菜单选择函数
+void  admin()
+{
+    admin_menu();
+    int choose2;
+    while (scanf_s("%d", &choose2))    //选择对应的操作；
+    {
+        switch (choose2)
+        {
+        case 1:
+            create();
+            system("pause");
+            system("cls");
+            break;
+        case 2:
+            print();
+            system("pause");
+            system("cls");
+            break;
+        case 3:
+            query();
+            system("pause");
+            system("cls");
+            break;
+        case 4:
+            update();
+            system("pause");
+            system("cls");
+            break;
+        case 5:
+            insert();
+            system("pause");
+            system("cls");
+            break;
+        case 6:
+            dele();
+            system("pause");
+            system("cls");
+            break;
+        case 0:
+            return;    //输入0直接退出整个函数
+        default:
+            printf("请输入正确的序号！\n");
+            break;
+        }
+        admin_menu();      //每次操作结束后再次打印菜单栏
+    }
+}
+
+
+
+//买票函数
+void buy(int no)
+{
+    int i;
+    printf("请输入您要购票的车次:\n");
+    char che[10];
+    scanf_s("%s", che , 10);
+    for (i = 0; i < cnum; i++)
+    {
+        if (strcmp(che, info[i].number) == 0)
+        {
+            users[no][vcs[no]] = info[i];
+            vcs[no]++;       //该用户的购票数加一；
+            printf("购票成功！\n");
+            return;
+        }
+    }
+    printf("抱歉，系统暂无该车次信息！\n");
+    return;
+}
+
+
+
+//用户查找车次信息
+void look_up(int no)
+{
+    if (cnum == 0)
+    {
+        printf("暂无该车次信息，需管理员录入车次信息！\n");
+        return;
+    }
+    char starts[20] ;
+    char ends[20] ;
+    int cnums = 0, i;      //记录查询到的车次条数
+    printf("请输入您要查询的起始 终止区间(中间用空格隔开):\n");
+    scanf_s("%s %s", starts,20, ends,20);
+    for (i = 0; i < cnum; i++)
+    {
+        if (strcmp(starts, info[i].start) == 0 && strcmp(ends, info[i].end) == 0)
+        {
+            printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+            printf("%s\t%s\t%s\t%d/%02d/%02d %02d:%02d\t%d/%02d/%02d %02d:%02d\n", info[i].number, info[i].start, info[i].end, info[i].year1, info[i].month1, info[i].day1, info[i].h1, info[i].m1, info[i].year2, info[i].month2, info[i].day2, info[i].h2, info[i].m2);
+            cnums++;     //如果查询到则加一
+        }
+    }
+    if (cnums == 0)    //未查询到
+    {
+        printf("抱歉，系统暂无此区间车次信息！\n");
+        return;
+    }
+    else
+    {
+        printf("\t\t********************************************************\n");
+        printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("\t\t\t              是 否 选 择 购 票               \n");
+        printf("\n");
+        printf("\t\t\t                1、是               \n\n");
+        printf("\t\t\t                2、否              \n");
+        printf("\n");
+        printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("\t\t********************************************************\n\n\n");
+        int choose4;//记录用户的选择
+        while (scanf_s("%d", &choose4))
+        {
+            switch (choose4)
+            {
+            case 1:
+                buy(no);
+                break;
+            case 2:
+                return;
+            default:
+                printf("您输入的选项有误请选择有效编号输入!\n");
+                break;
+            }
+
+            printf("\t\t********************************************************\n");
+            printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            printf("\t\t\t              是 否 选 择 购 票               \n");
+            printf("\n");
+            printf("\t\t\t                1、是               \n\n");
+            printf("\t\t\t                2、否              \n");
+            printf("\n");
+            printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            printf("\t\t********************************************************\n\n\n");
+        }
+
+    }
+}
+
+
+
+
+//退票
+void refund(int no)
+{
+    int vis = -1, i;
+    if (vcs[no] == 0)
+    {
+        printf("当前尚无已购买的车票！\n");
+        return;
+    }
+    else
+    {
+        printf("您的购票信息：\n");
+        printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+        for (i = 0; i < vcs[no]; i++)
+        {
+            printf("%s\t%s\t%s\t%d/%02d/%02d %02d:%02d\t%d/%02d/%02d %02d:%02d\n", users[no][i].number, users[no][i].start, users[no][i].end, users[no][i].year1, users[no][i].month1, users[no][i].day1, users[no][i].h1, users[no][i].m1, users[no][i].year2, users[no][i].month2, users[no][i].day2, users[no][i].h2, users[no][i].m2);
+        }
+        printf("请输入退票车次:");
+        char cs[10];
+        scanf_s("%s", cs , 10);
+        for (i = 0; i < vcs[no]; i++)
+        {
+            if (strcmp(cs, users[no][i].number) == 0)
+
+            {
+                vis = i;
+                break;
+            }
+        }
+        if (vis == -1)
+        {
+            printf("您尚未购买此列车车票！\n");
+            return;
+        }
+        else
+        {
+            for (i = vis; i < vcs[no] - 1; i++)
+            {
+                users[no][i] = users[no][i + 1];
+            }
+            printf("退票成功！\n");
+            vcs[no]--;    //购票总条数减一；
+            return;
+        }
+    }
+}
+
+
+
+
+//打印购票信息
+void out_print(int no)
+{
+    int i;
+    if (vcs[no] == 0)
+    {
+        printf("暂无购票记录，请注意核实!\n");
+        return;
+    }
+    else
+    {
+        printf("车次\t始发地\t终点站\t发车时间\t到达时间\n");
+        for (i = 0; i < vcs[no]; i++)
+        {
+            printf("%s\t%s\t%s\t%d/%02d/%02d %02d:%02d\t%d/%02d/%02d %02d:%02d\n", users[no][i].number, users[no][i].start, users[no][i].end, users[no][i].year1, users[no][i].month1, users[no][i].day1, users[no][i].h1, users[no][i].m1, users[no][i].year2, users[no][i].month2, users[no][i].day2, users[no][i].h2, users[no][i].m2);
+        }
+    }
+}
+
+
+
+//用户菜单
+void user_menu()
+{
+    printf("\t\t**************************************************************\n");
+    printf("\t\t           欢 迎 进 入 火 车 票 订 票 系 统                        \n");
+    printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("\n");
+    printf("\t\t                1、火车票区间查询                          \n\n");
+    printf("\t\t                2、打印购票信息                            \n\n");
+    printf("\t\t                3、退票                                    \n\n");
+    printf("\t\t                0、退出                                    \n");
+    printf("\n");
+    printf("\t\t**************************************************************\n");
+}
+
+
+
+//用户界面
+void user()
+{
+    int no;
+    printf("请输入用户名（纯数字）：");       //应输入数字 
+    scanf_s("%d", &no);        //记录用户用来对应的保存其购票信息 
+    user_menu();           //用户菜单界面
+    int choose3;
+    while (scanf_s("%d", &choose3))   //记录用户选择的操作；
+    {
+        switch (choose3)
+        {
+        case 1:
+            look_up(no);
+            system("pause");
+            system("cls");
+            break;
+        case 2:
+            out_print(no);
+            system("pause");
+            system("cls");
+            break;
+        case 3:
+            refund(no);
+            system("pause");
+            system("cls");
+            break;
+        case 0:
+            return;     //输入0直接退出整个函数
+        default:
+            printf("\n");
+            printf("您输入的选项有误，请选择有效编号输入!\n");
+            break;
+        }
+        user_menu();
+    }
+}
+
+
+//主函数
+int main()
+{
+    system("COLOR 9F");
+    int n = 666666;
+    int m;
+    int i;
+    int cnt = 0;
+    printf("\t# 提示：整个输入过程请严格按照格式，标点均为英文！\n\n");
+    printf("\t#(如果输入格式错误程序将运行失败!)\n\n");
+    printf("\n");
+    printf("\t\t************************************************************\n");
+    printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("\t\t\t           请 选 择 身 份 进 入               \n");
+    printf("\n");
+    printf("\t\t\t               1、管 理 员               \n\n");
+    printf("\t\t\t               2、用    户               \n\n");
+    printf("\t\t\t               0、结束程序               \n");
+    printf("\t\t                   \n");
+    printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("\t\t*************************************************************\n\n\n");      //输入1表示进入管理员界面，2进入用户界面
+    int choose1;
+    while (scanf_s("%d", &choose1))     //记录选择的序号，多组测试
+    {
+        if (choose1 == 0)
+            break;
+        switch (choose1)
+        {
+        case 1:
+            printf("请输入管理员密码(注意:密码错误三次系统将强制退出!)：");
+            for (i = 0; i < 3; i++) {
+                scanf_s("%d", &m);
+                if (m == n) {
+                    system("pause");
+                    system("cls");
+                    admin();       //管理员系统
+                    break;
+                }
+                else {
+                    cnt++;
+                    printf("输入错误，请重新输入!(错误次数 %d)\n", cnt);
+                    if (cnt == 3)
+                    {
+                        printf("您的错误次数已达三次，系统将强制退出！\n");
+                        return 0;
+                    }
+                    continue;
+                }
+            }
+            break;
+        case 2:
+            user();
+            break;
+        default:
+            printf("您输入的序号有误，请选择有效编号输入!\n");
+            break;
+        }
+
+        printf("\t\t*************************************************************\n");
+        printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("\t\t\t           请 选 择 身 份 进 入               \n");
+        printf("\n");
+        printf("\t\t\t               1、管 理 员               \n\n");
+        printf("\t\t\t               2、用    户               \n\n");
+        printf("\t\t\t               0、结束程序               \n");
+        printf("\n");
+        printf("\t\t\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("\t\t*************************************************************\n\n\n");
+    }
+    return 0;
+}
+
+
+
+
 
